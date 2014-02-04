@@ -3,6 +3,29 @@ from nltk.tag.simplify import simplify_wsj_tag
 import random
 import Markov
 
+def clean_word(word):
+    """Get the junk off a word."""
+    return word.strip().strip(".,'!?\"()*;:-")
+
+def is_punctuation(word):
+    return (clean_word(word) == "")
+
+def filter_pos(words, pos):
+    """Words is a dict of word: count pairs, and pos a NLTK tag."""
+    wn_parts_map = {"N": "n", "ADV": "r", "ADJ": "s", "NP": "n", "V": "v",
+                    "VD": "v", "VG": "v", "VN": "v"}
+    
+    pos = wn_parts_map[pos]
+
+    allowed_words = dict()
+    for word, count in words.iteritems():
+        syns = nltk.corpus.wordnet.synsets(clean_word(word))
+        for syn in syns:
+            if syn.pos == pos:
+                allowed_words[word] = count
+
+    return allowed_words
+
 class Madman(object):
     # Only these parts of speech may be replaced with madlibs.
     allowed_parts = {"ADJ", "ADV", "N", "NP", "V", "VD", "VG", "VN"}
@@ -10,14 +33,15 @@ class Madman(object):
     # Do not replace these words.
     skiplist = {"are", "is"}
 
-    madlib_prob = 0.3
+    madlib_prob = 0.6
     
     def __init__(self, brain, cacheDir="cache/"):
-        self.load(brain, cacheDir)
+        self.cache = cacheDir
+        
+        self.load(brain)
 
-    def load(self, brain, cacheDir):
-        print cacheDir + brain
-        self.brain = Markov.MarkovChain(cacheDir + brain + "-fwd", 1, False)
+    def load(self, brain):
+        self.brain = Markov.MarkovChain(self.cache + brain + "-fwd", 1, False)
 
     def madlib(self, text):
         """Take a sentence and madlibify it, returning the result text."""
@@ -35,12 +59,21 @@ class Madman(object):
 
             new_text.append(word)
 
-        return " ".join(new_text)
+        line = ""
+        for word in new_text:
+            if is_punctuation(word):
+                line += word
+            else:
+                line += " "
+                line += clean_word(word)
+        return line.strip()
 
     def replace_word(self, word, pos, context):
         """Devise a fun replacement for a word using two words of context."""
 
-        words = self.brain.getNextWords([context[0][0], context[1][0]])
+        words = filter_pos(self.brain.getNextWords([context[0][0],
+                                                    context[1][0]]),
+                           pos)
 
         if len(words) == 0:
             return word

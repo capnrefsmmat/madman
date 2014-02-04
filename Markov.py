@@ -3,14 +3,14 @@ import random, shelve
 class MarkovChain:
 	start = "[START!*]"
 	
-	def __init__(self, chainPath, level = 2, wb = False):
+	def __init__(self, chainPath, level=2, wb=False):
 		"""chainPath is the location of the Markov chain to load; wb is
 		for Shelve's writeback option. If writeback is set to true, 
 		Shelve will keep track of all changes to the chains and save 
 		them when closed. We don't need this during normal operation."""
 		self.level = level
-		self.chain = shelve.open(chainPath, protocol = 2, 
-					 writeback = wb)
+		self.chain = shelve.open(chainPath, protocol=2, 
+                                 writeback=wb)
 	
 	def add(self, iterable):
 		""" Insert an iterable (pattern) item into the Markov chain.
@@ -42,7 +42,7 @@ class MarkovChain:
 		if key in self.chain:
 			return self.chain[key]
 		else:
-			return []
+			return {}
 	
 	def close(self):
 		self.chain.close()
