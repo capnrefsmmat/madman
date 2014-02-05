@@ -11,30 +11,36 @@ def is_punctuation(word):
     return (clean_word(word) == "")
 
 def filter_pos(words, pos):
-    """Words is a dict of word: count pairs, and pos a NLTK tag."""
+    """Words is a dict of word: count pairs, and pos a NLTK tag.
+
+    Non-matching words are set to have a count of 0, rather than being removed.
+    """
     wn_parts_map = {"N": "n", "ADV": "r", "ADJ": "s", "NP": "n", "V": "v",
                     "VD": "v", "VG": "v", "VN": "v"}
     
     pos = wn_parts_map[pos]
 
-    allowed_words = dict()
-    for word, count in words.iteritems():
+    for word in words.iterkeys():
         syns = nltk.corpus.wordnet.synsets(clean_word(word))
+        right_pos = False
         for syn in syns:
             if syn.pos == pos:
-                allowed_words[word] = count
+                right_pos = True
+                continue
+        if not right_pos:
+            words[word] = 0
 
-    return allowed_words
+    return words
 
 class Madman(object):
     # Only these parts of speech may be replaced with madlibs.
     allowed_parts = {"ADJ", "ADV", "N", "NP", "V", "VD", "VG", "VN"}
 
     # Do not replace these words.
-    skiplist = {"are", "is"}
+    skiplist = {"are", "is", "was"}
 
     madlib_prob = 0.6
-    
+
     def __init__(self, brain, cacheDir="cache/"):
         self.cache = cacheDir
         
