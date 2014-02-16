@@ -55,8 +55,7 @@ Using Mark Twain for the mad libs:
     'Four score and seven dollars there our forefathers brought forth on this sign a runaway nation.'
 
     >>> m.madlib("Ask not what your country can do for you -- ask what you can do for your country.")
-    'Ask not what your country can get for you-- ask what you can do for your
-    uncles.'
+    'Ask not what your country can get for you-- ask what you can do for your uncles.'
 
 For extra blasphemy, here's something based on source material I collected
 myself:
