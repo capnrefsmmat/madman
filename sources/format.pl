@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# Generously provided by Jon Portnoy
 
 use strict;  # don't suck at perl
 
